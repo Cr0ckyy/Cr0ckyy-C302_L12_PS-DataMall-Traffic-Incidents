@@ -63,10 +63,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (getIntent().getSerializableExtra("incidentSelected") != null) {
             Incident incident = (Incident) getIntent().getSerializableExtra("incidentSelected");
-            map.addMarker(new MarkerOptions()
-                    .position(new LatLng(incident.getLatitude(), incident.getLongitude()))
-                    .title(incident.getType())
-                    .snippet(incident.getMessage()));
+            map.addMarker(
+                    new MarkerOptions()
+                            .position(new LatLng(incident.getLatitude(), incident.getLongitude()))
+                            .title(incident.getType())
+                            .snippet(incident.getMessage())
+            );
         } else {
             fireStore.collection("incidents")
                     .get()

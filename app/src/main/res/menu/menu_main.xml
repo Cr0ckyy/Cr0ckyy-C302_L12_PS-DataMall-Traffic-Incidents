@@ -3,26 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/google_map"
-        android:title=""
+        android:id="@+id/itemGoogleMap"
         android:icon="@drawable/map"
-        app:showAsAction="always"/>
+        android:title=""
+        app:showAsAction="always" />
 
     <item
-        android:id="@+id/upload_firebase"
-        android:title=""
+        android:id="@+id/itemUploadFirebase"
         android:icon="@drawable/update"
-        app:showAsAction="always"/>
+        android:title=""
+        app:showAsAction="always" />
 
     <item
-        android:id="@+id/reload"
-        android:title=""
+        android:id="@+id/itemReload"
         android:icon="@drawable/reload"
-        app:showAsAction="always"/>
-    <item
-        android:id="@+id/chart"
         android:title=""
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/itemChart"
         android:icon="@drawable/chart"
-        app:showAsAction="always"/>
+        android:title=""
+        app:showAsAction="always" />
 
 </menu>

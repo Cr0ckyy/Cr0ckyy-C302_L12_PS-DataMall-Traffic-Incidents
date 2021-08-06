@@ -34,8 +34,8 @@ public class IncidentAdapter extends ArrayAdapter<Incident> {
 
         @SuppressLint("ViewHolder") View rowView = inflater.inflate(resource, parent, false);
         Incident currentIncident = incidents.get(position);
-        TextView titleRow = rowView.findViewById(R.id.title_row_textview);
-        TextView messageRow = rowView.findViewById(R.id.message_row_textview);
+        TextView titleRow = rowView.findViewById(R.id.tvTitle);
+        TextView messageRow = rowView.findViewById(R.id.tvMessage);
 
         titleRow.setText(currentIncident.getType());
         messageRow.setText(currentIncident.getMessage());

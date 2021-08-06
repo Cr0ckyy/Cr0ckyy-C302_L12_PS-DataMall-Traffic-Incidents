@@ -48,14 +48,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        listView = findViewById(R.id.listview);
+        listView = findViewById(R.id.lv);
         incidents = new ArrayList<>();
         incidentAdapter = new IncidentAdapter(this, R.layout.incident_row, incidents);
         listView.setAdapter(incidentAdapter);
         fireStore = FirebaseFirestore.getInstance();
         collectionReference = fireStore.collection("incidents");
-
-        get_traffic();
+        getData();
 
         listView.setOnItemClickListener((AdapterView<?> parent, View view, int position, long id) -> {
             Intent intent = new Intent(MainActivity.this, MapsActivity.class);
@@ -76,82 +75,91 @@ public class MainActivity extends AppCompatActivity {
         // Handle action bar item clicks here.
         int menuItemID = item.getItemId();
 
-        if (menuItemID == R.id.google_map) {
+        if (menuItemID == R.id.itemGoogleMap) {
             Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
             startActivity(intent);
             return true;
 
-        } else if (menuItemID == R.id.upload_firebase) {
+        } else if (menuItemID == R.id.itemUploadFirebase) {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setMessage("proceed to upload to firestore")
-                    .setTitle("upload to firestore");
+            builder.setMessage("Proceed with the upload to the Firebase Firestore")
+                    .setTitle("Upload to the Firebase");
 
             builder.setPositiveButton("Upload", (DialogInterface dialog, int id1) ->
                     collectionReference.get().addOnCompleteListener((Task<QuerySnapshot> task) -> {
+
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                                 DocumentReference documentReference = collectionReference.document(document.getId());
-                                documentReference.delete().addOnSuccessListener((Void aVoid) -> Log.d("MainActivity", "Successfully deleted from firebase")).addOnFailureListener(e -> Log.d("MainActivity", "Failed to delete from into firebase"));
+                                documentReference.delete().addOnSuccessListener(
+                                        (Void aVoid) ->
+                                                Log.d("MainActivity", "Successfully deleted from Firebase Firestore")).addOnFailureListener(
+                                        (Exception e) ->
+                                                Log.d("MainActivity", "Failed to delete from into Firebase Firestore"));
                             }
                             for (Incident incident : incidents) {
                                 collectionReference.add(incident)
                                         .addOnSuccessListener((DocumentReference documentReference) ->
-
-                                                Log.d("MainActivity", "Successfully added into firebase"))
-
+                                                Log.d("MainActivity", "Firebase Firestore has been successfully added"))
                                         .addOnFailureListener((Exception e) ->
-                                                Log.d("MainActivity", "Failed to add into firebase"));
+                                                Log.d("MainActivity", "Failure to add to Firebase Firestore"));
                             }
                         } else {
-                            Log.d("MainActivity", "Successfully added into firebase");
+                            Log.d("MainActivity", "Successfully added into Firebase Firestore");
                         }
                     }));
             builder.setNegativeButton("Cancel", (DialogInterface dialog, int id12) -> dialog.cancel());
             AlertDialog dialog = builder.create();
             dialog.show();
-        } else if (menuItemID == R.id.reload) {
-            get_traffic();
-            Toast.makeText(MainActivity.this, "Reloaded", Toast.LENGTH_SHORT).show();
-        } else if (menuItemID == R.id.chart) {
+
+        } else if (menuItemID == R.id.itemReload) {
+            getData();
+            Toast.makeText(MainActivity.this, "The information has been reloaded.", Toast.LENGTH_SHORT).show();
+
+        } else if (menuItemID == R.id.itemChart) {
             Intent intent = new Intent(MainActivity.this, ChartActivity.class);
             startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void get_traffic() {
+    private void getData() {
         client = new AsyncHttpClient();
-        client.addHeader("AccountKey", "We/4SNhISV+moxrLY/BVrw==");
+        client.addHeader("AccountKey", "GQ0cDI3gSsGPJ8gHZzLMSg==");
         client.addHeader("accept", "application/json");
-        client.get("http://datamall2.mytransport.sg/ltaodataservice/TrafficIncidents", new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                // If the response is JSONObject instead of expected JSONArray
-                JSONObject incidentObj = null;
-                incidents.clear();
-                try {
-                    JSONArray listIncidents = response.getJSONArray("value");
-                    Log.i("listIncidents", listIncidents.toString());
 
-                    for (int i = 0; i < listIncidents.length(); i++) {
-                        incidentObj = (JSONObject) listIncidents.get(i);
-                        String type = incidentObj.getString("Type");
-                        double latitude = incidentObj.getDouble("Latitude");
-                        double longitude = incidentObj.getDouble("Longitude");
-                        String message = incidentObj.getString("Message");
-                        @SuppressLint("SimpleDateFormat") DateFormat dateformat =
-                                new SimpleDateFormat("(dd/MM)HH:mm");
-                        String dateString = message.split(" ")[0];
-                        Date date = dateformat.parse(dateString);
+        client.get("http://datamall2.mytransport.sg/ltaodataservice/TrafficIncidents",
+                new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        // If the response is JSONObject instead of expected JSONArray
+                        JSONObject incidentJSONObject = null;
+                        incidents.clear();
+                        try {
+                            JSONArray incidentJSONArray = response.getJSONArray("value");
+                            Log.i("incidentJSONArray", incidentJSONArray.toString());
 
-                        Incident newIncident = new Incident(type, latitude, longitude, message, date);
-                        incidents.add(newIncident);
+                            for (int i = 0; i < incidentJSONArray.length(); i++) {
+                                incidentJSONObject = (JSONObject) incidentJSONArray.get(i);
+                                String type = incidentJSONObject.getString("Type");
+                                double latitude = incidentJSONObject.getDouble("Latitude");
+                                double longitude = incidentJSONObject.getDouble("Longitude");
+                                String message = incidentJSONObject.getString("Message");
+
+                                @SuppressLint("SimpleDateFormat") DateFormat dateformat =
+                                        new SimpleDateFormat("(dd/MM)HH:mm");
+                                String dateString = message.split(" ")[0];
+                                Date date = dateformat.parse(dateString);
+
+                                Incident newIncident = new Incident(type, latitude, longitude, message, date);
+                                incidents.add(newIncident);
+                            }
+                            incidentAdapter.notifyDataSetChanged();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                    incidentAdapter.notifyDataSetChanged();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+                });
     }
+
 }
