@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/google_map"
+        android:title=""
+        android:icon="@drawable/map"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/upload_firebase"
+        android:title=""
+        android:icon="@drawable/update"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/reload"
+        android:title=""
+        android:icon="@drawable/reload"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/chart"
+        android:title=""
+        android:icon="@drawable/chart"
+        app:showAsAction="always"/>
+
+</menu>
